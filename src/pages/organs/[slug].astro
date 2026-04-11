@@ -1,0 +1,70 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('organs');
+  return entries.map(entry => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<Base
+  title={entry.data.title}
+  description={`${entry.data.metric} — ${entry.data.divergence}`}
+  isDraft={entry.data.status === 'draft'}
+  breadcrumbs={[
+    { label: 'Organs', href: '/organs/' },
+    { label: entry.data.title },
+  ]}
+>
+  <article class="max-w-prose" data-pagefind-body>
+    <header class="mb-6">
+      <h1 class="text-2xl font-bold">{entry.data.title}</h1>
+
+      <dl class="mt-4 text-sm space-y-2">
+        <div>
+          <dt class="text-sc-muted dark:text-sc-muted-dark font-medium">Optimising for:</dt>
+          <dd>{entry.data.metric}</dd>
+        </div>
+        <div>
+          <dt class="text-sc-muted dark:text-sc-muted-dark font-medium">Divergence from public interest:</dt>
+          <dd>{entry.data.divergence}</dd>
+        </div>
+      </dl>
+    </header>
+
+    <div class="prose max-w-none">
+      <Content />
+    </div>
+
+    <footer class="mt-10 pt-6 border-t border-sc-border dark:border-sc-border-dark text-sm">
+      {entry.data.caseStudies.length > 0 && (
+        <div class="mb-3">
+          <span class="text-sc-muted dark:text-sc-muted-dark">Appears in: </span>
+          <span class="flex flex-wrap gap-1.5 mt-1">
+            {entry.data.caseStudies.map(cs => (
+              <a href={`/case-studies/${cs}/`} class="tag">{cs.replace(/-/g, ' ')}</a>
+            ))}
+          </span>
+        </div>
+      )}
+
+      {entry.data.mechanisms.length > 0 && (
+        <div class="mb-3">
+          <span class="text-sc-muted dark:text-sc-muted-dark">Exhibits: </span>
+          <span class="flex flex-wrap gap-1.5 mt-1">
+            {entry.data.mechanisms.map(m => (
+              <a href={`/mechanisms/${m}/`} class="tag">{m.replace(/-/g, ' ')}</a>
+            ))}
+          </span>
+        </div>
+      )}
+    </footer>
+  </article>
+</Base>

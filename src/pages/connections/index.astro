@@ -1,0 +1,21 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base title="Connections" description="Interactive visualisation of relationships between organs, mechanisms, and case studies." breadcrumbs={[{ label: 'Connections' }]}>
+  <article class="max-w-prose">
+    <h1 class="text-2xl font-bold mb-2">Connections</h1>
+    <p class="text-sc-muted dark:text-sc-muted-dark mb-6">
+      The key differentiator. An interactive visualisation of relationships between organs,
+      mechanisms, and case studies. Powered by the YAML relationship layer. Explorable map.
+    </p>
+
+    <div id="connections-graph" class="border border-sc-border dark:border-sc-border-dark rounded p-8 text-center text-sc-muted dark:text-sc-muted-dark min-h-[400px] flex items-center justify-center">
+      <p>
+        The connections visualisation is under development.<br />
+        The relationship data is defined in <code>src/data/relationships.yaml</code><br />
+        and will be rendered here using D3.js or Cytoscape.js.
+      </p>
+    </div>
+  </article>
+</Base>

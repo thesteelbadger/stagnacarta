@@ -1,0 +1,130 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --sc-bg: #fafaf8;
+    --sc-text: #1a1a1a;
+    --sc-accent: #4a6670;
+    --sc-muted: #6b7280;
+    --sc-border: #e5e5e3;
+    --sc-ref-bg: #f5f4f0;
+  }
+
+  .dark {
+    --sc-bg: #1a1a1a;
+    --sc-text: #e0e0e0;
+    --sc-accent: #7fa8b5;
+    --sc-muted: #9ca3af;
+    --sc-border: #333333;
+    --sc-ref-bg: #242424;
+  }
+
+  html {
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--sc-bg);
+    color: var(--sc-text);
+  }
+
+  a {
+    color: var(--sc-accent);
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  /* Prose content styling */
+  .prose h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .prose h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .prose p {
+    margin-bottom: 1rem;
+  }
+
+  .prose blockquote {
+    border-left: 3px solid var(--sc-accent);
+    padding-left: 1rem;
+    margin: 1.5rem 0;
+    color: var(--sc-muted);
+    font-style: italic;
+  }
+
+  .prose ul, .prose ol {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+  }
+
+  .prose li {
+    margin-bottom: 0.25rem;
+  }
+
+  /* Reference layer sections — subtle distinction */
+  .ref-layer {
+    background-color: var(--sc-ref-bg);
+    border-left: 3px solid var(--sc-accent);
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .ref-layer::before {
+    content: '\2139\FE0F  AI-assisted reference material';
+    display: block;
+    font-size: 0.75rem;
+    color: var(--sc-muted);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Draft indicator */
+  .draft-banner {
+    background: #fef3c7;
+    color: #92400e;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    text-align: center;
+  }
+
+  .dark .draft-banner {
+    background: #451a03;
+    color: #fbbf24;
+  }
+
+  /* Mechanism/organ tags */
+  .tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid var(--sc-border);
+    color: var(--sc-muted);
+    text-decoration: none;
+  }
+
+  .tag:hover {
+    border-color: var(--sc-accent);
+    color: var(--sc-accent);
+    text-decoration: none;
+  }
+}

@@ -1,0 +1,368 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+  isDraft?: boolean;
+  breadcrumbs?: Array<{ label: string; href?: string }>;
+}
+
+const { title, description = 'Mapping how British institutions fail', isDraft = false, breadcrumbs = [] } = Astro.props;
+const currentPath = Astro.url.pathname;
+
+const navItems = [
+  { href: '/', label: 'Home', icon: '⌂' },
+  { href: '/case-studies/', label: 'Case Studies', icon: '◉' },
+  { href: '/mechanisms/', label: 'Mechanisms', icon: '⚙' },
+  { href: '/organs/', label: 'Organs', icon: '⏣' },
+  { href: '/connections/', label: 'Connections', icon: '◈' },
+  { href: '/solutions/', label: 'Solutions', icon: '△' },
+  { href: '/future-challenges/', label: 'Future', icon: '▷' },
+  { href: '/explainers/', label: 'Explainers', icon: '☰' },
+  { href: '/about/', label: 'About', icon: 'i' },
+  { href: '/sitemap/', label: 'Sitemap', icon: '▤' },
+];
+
+function isActive(href: string): boolean {
+  if (href === '/') return currentPath === '/';
+  return currentPath.startsWith(href);
+}
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content={description} />
+  <title>{title === 'Stagnacarta' ? title : `${title} — Stagnacarta`}</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style>
+    .sc-sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 260px;
+      border-right: 1px solid var(--sc-border);
+      background-color: #fafaf8;
+      z-index: 40;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease;
+      overflow-y: auto;
+    }
+
+    .dark .sc-sidebar {
+      background-color: #1a1a1a;
+      border-right-color: #333;
+    }
+
+    .sc-sidebar-header {
+      padding: 1.25rem 1.25rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .sc-sidebar nav {
+      flex: 1;
+      padding: 0 0.5rem;
+    }
+
+    .sc-sidebar nav a {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      color: var(--sc-muted);
+      text-decoration: none;
+      transition: background 0.1s, color 0.1s;
+    }
+
+    .sc-sidebar nav a:hover {
+      background-color: var(--sc-ref-bg);
+      color: var(--sc-text);
+      text-decoration: none;
+    }
+
+    .sc-sidebar nav a.active {
+      background-color: var(--sc-ref-bg);
+      color: var(--sc-text);
+      font-weight: 500;
+    }
+
+    .sc-sidebar .nav-icon {
+      width: 1.2rem;
+      text-align: center;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      opacity: 0.5;
+    }
+
+    .sc-sidebar nav a.active .nav-icon { opacity: 1; }
+
+    .sc-sidebar-footer {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--sc-border);
+      font-size: 0.75rem;
+      color: var(--sc-muted);
+      flex-shrink: 0;
+    }
+
+    .sc-sidebar-footer a {
+      display: inline;
+      padding: 0;
+      font-size: 0.75rem;
+    }
+
+    .sc-content {
+      margin-left: 260px;
+      min-height: 100vh;
+      transition: margin-left 0.2s ease;
+    }
+
+    .sc-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 35;
+    }
+
+    .sc-overlay.visible { display: block; }
+
+    .sc-mobile-header {
+      display: none;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background-color: #fafaf8;
+      border-bottom: 1px solid var(--sc-border);
+      padding: 0.75rem 1rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .dark .sc-mobile-header {
+      background-color: #1a1a1a;
+      border-bottom-color: #333;
+    }
+
+    .sc-reopen {
+      display: none;
+      position: fixed;
+      top: 0.75rem;
+      left: 0.75rem;
+      z-index: 30;
+      background-color: #fafaf8;
+      border: 1px solid var(--sc-border);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      color: var(--sc-muted);
+      padding: 0.35rem 0.5rem;
+      line-height: 1;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    .dark .sc-reopen {
+      background-color: #1a1a1a;
+      border-color: #333;
+    }
+
+    .sc-reopen:hover {
+      color: var(--sc-text);
+      border-color: var(--sc-accent);
+    }
+
+    .sc-toggle {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+      color: var(--sc-muted);
+      padding: 0.25rem;
+      line-height: 1;
+    }
+
+    .sc-toggle:hover { color: var(--sc-text); }
+
+    .sc-breadcrumb {
+      font-size: 0.8rem;
+      color: var(--sc-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .sc-breadcrumb a { color: var(--sc-muted); }
+    .sc-breadcrumb a:hover { color: var(--sc-accent); }
+    .sc-breadcrumb .sep { margin: 0 0.35rem; opacity: 0.5; }
+
+    @media (max-width: 768px) {
+      .sc-sidebar { transform: translateX(-100%); }
+      .sc-sidebar.open { transform: translateX(0); }
+      .sc-content { margin-left: 0; }
+      .sc-mobile-header { display: flex; }
+      .sc-reopen { display: none !important; }
+    }
+
+    @media (min-width: 769px) {
+      .sc-sidebar.collapsed { transform: translateX(-100%); }
+      .sc-content.expanded { margin-left: 0; }
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-sc-bg text-sc-text dark:bg-sc-bg-dark dark:text-sc-text-dark">
+  <a class="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:bg-sc-text focus:text-sc-bg focus:p-2 focus:z-50" href="#main">Skip to content</a>
+
+  {isDraft && (
+    <div class="draft-banner">
+      DRAFT — This page is not yet published on the live site.
+    </div>
+  )}
+
+  <aside class="sc-sidebar" id="sidebar">
+    <div class="sc-sidebar-header">
+      <a href="/" style="font-size:1.1rem;font-weight:600;letter-spacing:-0.02em;color:var(--sc-text);text-decoration:none;">
+        Stagnacarta
+      </a>
+      <button class="sc-toggle" id="sidebar-close" aria-label="Collapse navigation" type="button">✕</button>
+    </div>
+
+    <nav aria-label="Main navigation">
+      {navItems.map(({ href, label, icon }) => (
+        <a href={href} class:list={[isActive(href) && 'active']}>
+          <span class="nav-icon">{icon}</span>
+          {label}
+        </a>
+      ))}
+    </nav>
+
+    <div class="sc-sidebar-footer">
+      <button class="sc-toggle" id="dark-toggle" aria-label="Toggle dark mode" type="button" style="font-size:0.85rem;margin-bottom:0.5rem;display:block;">
+        ◑ Dark mode
+      </button>
+      <a href="https://github.com/thesteelbadger/stagnacarta" target="_blank" rel="noopener">Source & Feedback</a>
+    </div>
+  </aside>
+
+  <button class="sc-reopen" id="sidebar-reopen" aria-label="Open navigation" type="button">☰</button>
+
+  <div class="sc-overlay" id="overlay"></div>
+
+  <div class="sc-content" id="content">
+    <div class="sc-mobile-header">
+      <button class="sc-toggle" id="sidebar-open" aria-label="Open navigation" type="button">☰</button>
+      <a href="/" style="font-weight:600;letter-spacing:-0.02em;color:var(--sc-text);text-decoration:none;font-size:1rem;">
+        Stagnacarta
+      </a>
+      <button class="sc-toggle" id="dark-toggle-mobile" aria-label="Toggle dark mode" type="button">◑</button>
+    </div>
+
+    <main id="main" class="px-6 py-8 mx-auto" style="max-width:52rem;">
+      {breadcrumbs.length > 0 && (
+        <nav class="sc-breadcrumb" aria-label="Breadcrumb">
+          <a href="/">Home</a>
+          {breadcrumbs.map(({ label, href }) => (
+            <>
+              <span class="sep">/</span>
+              {href ? <a href={href}>{label}</a> : <span>{label}</span>}
+            </>
+          ))}
+        </nav>
+      )}
+
+      <slot />
+    </main>
+
+    <footer class="border-t border-sc-border dark:border-sc-border-dark mt-16">
+      <div class="px-6 py-6 mx-auto text-sm text-sc-muted dark:text-sc-muted-dark" style="max-width:52rem;">
+        <p>
+          Stagnacarta documents how British institutions fail. Not a decline narrative —
+          a specific, testable claim about post-2008 institutional failure.
+        </p>
+      </div>
+    </footer>
+  </div>
+
+  <script is:inline>
+    (function() {
+      var sidebar = document.getElementById('sidebar');
+      var overlay = document.getElementById('overlay');
+      var content = document.getElementById('content');
+      var openBtn = document.getElementById('sidebar-open');
+      var closeBtn = document.getElementById('sidebar-close');
+      var reopenBtn = document.getElementById('sidebar-reopen');
+
+      function openMobile() {
+        sidebar.classList.add('open');
+        overlay.classList.add('visible');
+      }
+
+      function closeMobile() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('visible');
+      }
+
+      function collapseDesktop() {
+        sidebar.classList.add('collapsed');
+        content.classList.add('expanded');
+        reopenBtn.style.display = 'block';
+        try { localStorage.setItem('sc-sidebar', '0'); } catch(e) {}
+      }
+
+      function expandDesktop() {
+        sidebar.classList.remove('collapsed');
+        content.classList.remove('expanded');
+        reopenBtn.style.display = 'none';
+        try { localStorage.setItem('sc-sidebar', '1'); } catch(e) {}
+      }
+
+      if (openBtn) openBtn.addEventListener('click', openMobile);
+      if (overlay) overlay.addEventListener('click', closeMobile);
+
+      if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+          if (window.innerWidth <= 768) {
+            closeMobile();
+          } else {
+            collapseDesktop();
+          }
+        });
+      }
+
+      if (reopenBtn) {
+        reopenBtn.addEventListener('click', expandDesktop);
+        reopenBtn.style.display = 'none';
+      }
+
+      var html = document.documentElement;
+      function setDark(dark) {
+        html.classList.toggle('dark', dark);
+        try { localStorage.setItem('sc-dark', dark ? '1' : '0'); } catch(e) {}
+      }
+
+      try {
+        var stored = localStorage.getItem('sc-dark');
+        if (stored === '1' || (stored === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          setDark(true);
+        }
+      } catch(e) {}
+
+      document.querySelectorAll('#dark-toggle, #dark-toggle-mobile').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          setDark(!html.classList.contains('dark'));
+        });
+      });
+
+      try {
+        if (window.innerWidth > 768 && localStorage.getItem('sc-sidebar') === '0') {
+          collapseDesktop();
+        }
+      } catch(e) {}
+    })();
+  </script>
+</body>
+</html>

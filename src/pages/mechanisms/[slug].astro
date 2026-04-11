@@ -1,0 +1,63 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('mechanisms');
+  return entries.map(entry => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<Base
+  title={entry.data.title}
+  description={entry.data.definition}
+  isDraft={entry.data.status === 'draft'}
+  breadcrumbs={[
+    { label: 'Mechanisms', href: '/mechanisms/' },
+    { label: entry.data.title },
+  ]}
+>
+  <article class="max-w-prose" data-pagefind-body>
+    <header class="mb-6">
+      {entry.data.status === 'candidate' && (
+        <span class="text-xs text-amber-600 dark:text-amber-400 mb-2 inline-block">CANDIDATE MECHANISM</span>
+      )}
+      <h1 class="text-2xl font-bold">{entry.data.title}</h1>
+      <p class="text-sc-muted dark:text-sc-muted-dark mt-2">{entry.data.definition}</p>
+    </header>
+
+    <div class="prose max-w-none">
+      <Content />
+    </div>
+
+    <footer class="mt-10 pt-6 border-t border-sc-border dark:border-sc-border-dark text-sm">
+      {entry.data.caseStudies.length > 0 && (
+        <div class="mb-3">
+          <span class="text-sc-muted dark:text-sc-muted-dark">Appears in: </span>
+          <span class="flex flex-wrap gap-1.5 mt-1">
+            {entry.data.caseStudies.map(cs => (
+              <a href={`/case-studies/${cs}/`} class="tag">{cs.replace(/-/g, ' ')}</a>
+            ))}
+          </span>
+        </div>
+      )}
+
+      {entry.data.relatedMechanisms.length > 0 && (
+        <div class="mb-3">
+          <span class="text-sc-muted dark:text-sc-muted-dark">Related mechanisms: </span>
+          <span class="flex flex-wrap gap-1.5 mt-1">
+            {entry.data.relatedMechanisms.map(m => (
+              <a href={`/mechanisms/${m}/`} class="tag">{m.replace(/-/g, ' ')}</a>
+            ))}
+          </span>
+        </div>
+      )}
+    </footer>
+  </article>
+</Base>

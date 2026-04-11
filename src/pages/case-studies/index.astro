@@ -1,0 +1,58 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const allCaseStudies = await getCollection('case-studies');
+const visible = allCaseStudies.filter(s => s.data.status !== 'stub').sort((a, b) => a.data.order - b.data.order);
+const failures = visible.filter(s => s.data.type === 'failure');
+const successes = visible.filter(s => s.data.type === 'success');
+---
+
+<Base title="Case Studies" description="Documented case studies of British institutional failure and success." breadcrumbs={[{ label: 'Case Studies' }]}>
+  <article class="max-w-prose">
+    <h1 class="text-2xl font-bold mb-2">Case Studies</h1>
+    <p class="text-sc-muted dark:text-sc-muted-dark mb-6">
+      Documented failures and successes. Each entry identifies the organs involved,
+      the mechanisms at work, the tradeoffs that weren't discussed, and the sources.
+      Success case studies are analysed with equal rigour.
+    </p>
+
+    {failures.length > 0 && (
+      <section class="mb-10">
+        <h2 class="text-lg font-semibold mb-3">Failures</h2>
+        <ul class="space-y-4">
+          {failures.map(study => (
+            <li>
+              <a href={`/case-studies/${study.id}/`} class="group block">
+                <span class="font-medium group-hover:text-sc-accent dark:group-hover:text-sc-accent-dark">{study.data.title}</span>
+                {study.data.status === 'draft' && (
+                  <span class="text-xs text-amber-600 dark:text-amber-400 ml-2">DRAFT</span>
+                )}
+                <p class="text-sm text-sc-muted dark:text-sc-muted-dark mt-0.5">{study.data.summary}</p>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    {successes.length > 0 && (
+      <section class="mb-10">
+        <h2 class="text-lg font-semibold mb-3">Successes</h2>
+        <ul class="space-y-4">
+          {successes.map(study => (
+            <li>
+              <a href={`/case-studies/${study.id}/`} class="group block">
+                <span class="font-medium group-hover:text-sc-accent dark:group-hover:text-sc-accent-dark">{study.data.title}</span>
+                {study.data.status === 'draft' && (
+                  <span class="text-xs text-amber-600 dark:text-amber-400 ml-2">DRAFT</span>
+                )}
+                <p class="text-sm text-sc-muted dark:text-sc-muted-dark mt-0.5">{study.data.summary}</p>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </article>
+</Base>

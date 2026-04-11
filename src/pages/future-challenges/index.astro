@@ -1,0 +1,38 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const allChallenges = await getCollection('future-challenges');
+const visible = allChallenges.filter(c => c.data.status !== 'stub').sort((a, b) => a.data.order - b.data.order);
+---
+
+<Base title="Future Challenges" description="Problems coming down the track that don't yet have case studies but will need answers." breadcrumbs={[{ label: 'Future Challenges' }]}>
+  <article class="max-w-prose">
+    <h1 class="text-2xl font-bold mb-2">Future Challenges</h1>
+    <p class="text-sc-muted dark:text-sc-muted-dark mb-6">
+      Problems coming down the track that don't yet have case studies but will need answers.
+      These are the areas where British institutional dysfunction leaves the country
+      ill-equipped for what's coming.
+    </p>
+
+    {visible.length > 0 ? (
+      <ul class="space-y-4">
+        {visible.map(ch => (
+          <li>
+            <a href={`/future-challenges/${ch.id}/`} class="group block">
+              <span class="font-medium group-hover:text-sc-accent dark:group-hover:text-sc-accent-dark">{ch.data.title}</span>
+              {ch.data.status === 'draft' && (
+                <span class="text-xs text-amber-600 dark:text-amber-400 ml-2">DRAFT</span>
+              )}
+              <p class="text-sm text-sc-muted dark:text-sc-muted-dark mt-0.5">{ch.data.summary}</p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="text-sc-muted dark:text-sc-muted-dark">
+        Future challenges content is planned for Phase 3.
+      </p>
+    )}
+  </article>
+</Base>

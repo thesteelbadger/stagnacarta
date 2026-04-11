@@ -1,0 +1,30 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const aboutPages = await getCollection('about');
+const sorted = aboutPages.sort((a, b) => a.data.order - b.data.order);
+---
+
+<Base title="About" description="Mission, methodology, AI transparency, and why this site exists." breadcrumbs={[{ label: 'About' }]}>
+  <article class="max-w-prose">
+    <h1 class="text-2xl font-bold mb-2">About</h1>
+    <p class="text-sc-muted dark:text-sc-muted-dark mb-6">
+      Mission, methodology, transparency about AI use, editorial principles,
+      and why this site exists.
+    </p>
+
+    <ul class="space-y-4">
+      {sorted.map(page => (
+        <li>
+          <a href={`/about/${page.id}/`} class="group block">
+            <span class="font-medium group-hover:text-sc-accent dark:group-hover:text-sc-accent-dark">{page.data.title}</span>
+            {page.data.status === 'draft' && (
+              <span class="text-xs text-amber-600 dark:text-amber-400 ml-2">DRAFT</span>
+            )}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </article>
+</Base>

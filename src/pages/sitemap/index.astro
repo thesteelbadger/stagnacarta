@@ -1,0 +1,107 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const collections = [
+  { name: 'Case Studies', path: 'case-studies', entries: await getCollection('case-studies') },
+  { name: 'Mechanisms', path: 'mechanisms', entries: await getCollection('mechanisms') },
+  { name: 'Organs', path: 'organs', entries: await getCollection('organs') },
+  { name: 'Solutions', path: 'solutions', entries: await getCollection('solutions') },
+  { name: 'Future Challenges', path: 'future-challenges', entries: await getCollection('future-challenges') },
+  { name: 'Explainers', path: 'explainers', entries: await getCollection('explainers') },
+  { name: 'About', path: 'about', entries: await getCollection('about') },
+];
+
+function daysAgo(date: Date): number {
+  return Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+function staleness(date: Date): string {
+  const days = daysAgo(date);
+  if (days > 180) return 'stale';
+  if (days > 90) return 'aging';
+  return 'fresh';
+}
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+const allEntries = collections.flatMap(col =>
+  col.entries.map(entry => ({
+    title: entry.data.title,
+    href: `/${col.path}/${entry.id}/`,
+    section: col.name,
+    status: entry.data.status,
+    lastUpdated: entry.data.lastUpdated || entry.data.dateAdded,
+    dateAdded: entry.data.dateAdded,
+  }))
+);
+
+const byAge = [...allEntries].sort((a, b) => a.lastUpdated.getTime() - b.lastUpdated.getTime());
+
+const totalPages = allEntries.length;
+const staleCount = allEntries.filter(e => staleness(e.lastUpdated) === 'stale').length;
+const agingCount = allEntries.filter(e => staleness(e.lastUpdated) === 'aging').length;
+---
+
+<Base title="Sitemap" description="All content on Stagnacarta with status and freshness." breadcrumbs={[{ label: 'Sitemap' }]}>
+  <article>
+    <h1 class="text-2xl font-bold mb-2">Sitemap</h1>
+    <p class="text-sc-muted dark:text-sc-muted-dark mb-4">
+      Every page on Stagnacarta, sorted by when it was last updated. Oldest first —
+      the pages most likely to need attention are at the top.
+    </p>
+
+    <p class="text-sm text-sc-muted dark:text-sc-muted-dark mb-6">
+      {totalPages} pages total.
+      {staleCount > 0 && <span class="text-red-600 dark:text-red-400"> {staleCount} stale (6+ months).</span>}
+      {agingCount > 0 && <span class="text-amber-600 dark:text-amber-400"> {agingCount} ageing (3–6 months).</span>}
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-left text-sc-muted dark:text-sc-muted-dark border-b border-sc-border dark:border-sc-border-dark">
+            <th class="py-2 pr-4 font-medium">Page</th>
+            <th class="py-2 pr-4 font-medium">Section</th>
+            <th class="py-2 pr-4 font-medium">Status</th>
+            <th class="py-2 font-medium">Last Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+          {byAge.map(entry => (
+            <tr class="border-b border-sc-border/50 dark:border-sc-border-dark/50">
+              <td class="py-2 pr-4">
+                <a href={entry.href} class="hover:text-sc-accent dark:hover:text-sc-accent-dark">
+                  {entry.title}
+                </a>
+              </td>
+              <td class="py-2 pr-4 text-sc-muted dark:text-sc-muted-dark">{entry.section}</td>
+              <td class="py-2 pr-4">
+                <span class:list={[
+                  'text-xs px-1.5 py-0.5 rounded',
+                  entry.status === 'published' && 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300',
+                  entry.status === 'draft' && 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+                  entry.status === 'stub' && 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400',
+                  entry.status === 'candidate' && 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+                ]}>
+                  {entry.status}
+                </span>
+              </td>
+              <td class:list={[
+                'py-2 whitespace-nowrap',
+                staleness(entry.lastUpdated) === 'stale' && 'text-red-600 dark:text-red-400',
+                staleness(entry.lastUpdated) === 'aging' && 'text-amber-600 dark:text-amber-400',
+                staleness(entry.lastUpdated) === 'fresh' && 'text-sc-muted dark:text-sc-muted-dark',
+              ]}>
+                {formatDate(entry.lastUpdated)}
+                {staleness(entry.lastUpdated) === 'stale' && ' ⚠'}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </article>
+</Base>

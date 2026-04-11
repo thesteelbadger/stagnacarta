@@ -1,0 +1,51 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const allMechanisms = await getCollection('mechanisms');
+const visible = allMechanisms.filter(m => m.data.status !== 'candidate').sort((a, b) => a.data.order - b.data.order);
+const candidates = allMechanisms.filter(m => m.data.status === 'candidate');
+---
+
+<Base title="Mechanisms" description="Recurring patterns that appear across multiple British institutional failures." breadcrumbs={[{ label: 'Mechanisms' }]}>
+  <article class="max-w-prose">
+    <h1 class="text-2xl font-bold mb-2">Mechanisms</h1>
+    <p class="text-sc-muted dark:text-sc-muted-dark mb-6">
+      Recurring patterns that appear across multiple failures. These are the analytical
+      vocabulary — the concepts that turn a collection of case studies into a coherent
+      argument about why reform is structurally self-defeating.
+    </p>
+
+    <ul class="space-y-4 mb-10">
+      {visible.map(mech => (
+        <li>
+          <a href={`/mechanisms/${mech.id}/`} class="group block">
+            <span class="font-medium group-hover:text-sc-accent dark:group-hover:text-sc-accent-dark">{mech.data.title}</span>
+            {mech.data.status === 'draft' && (
+              <span class="text-xs text-amber-600 dark:text-amber-400 ml-2">DRAFT</span>
+            )}
+            <p class="text-sm text-sc-muted dark:text-sc-muted-dark mt-0.5">{mech.data.definition}</p>
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    {candidates.length > 0 && (
+      <section>
+        <h2 class="text-lg font-semibold mb-3 text-sc-muted dark:text-sc-muted-dark">Candidate Mechanisms</h2>
+        <p class="text-sm text-sc-muted dark:text-sc-muted-dark mb-3">
+          Under development — needs stress-testing and comparative evidence before elevation.
+        </p>
+        <ul class="space-y-3">
+          {candidates.map(mech => (
+            <li>
+              <a href={`/mechanisms/${mech.id}/`} class="group block">
+                <span class="text-sc-muted dark:text-sc-muted-dark group-hover:text-sc-accent dark:group-hover:text-sc-accent-dark">{mech.data.title}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </article>
+</Base>

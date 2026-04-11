@@ -1,0 +1,27 @@
+# Astro
+dist/
+.astro/
+
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor
+.vscode/
+*.swp
+*.swo
+*~
+
+# Pagefind output (generated at build time)
+public/pagefind/
+
+# Build artifacts
+*.tsbuildinfo

@@ -1,0 +1,37 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const allOrgans = await getCollection('organs');
+const visible = allOrgans.sort((a, b) => a.data.title.localeCompare(b.data.title));
+---
+
+<Base title="Organs" description="The institutions involved in systemic British institutional failures." breadcrumbs={[{ label: 'Organs' }]}>
+  <article class="max-w-prose">
+    <h1 class="text-2xl font-bold mb-2">Organs</h1>
+    <p class="text-sc-muted dark:text-sc-muted-dark mb-6">
+      The institutions involved in systemic failures. Cross-referenced to the case studies
+      they appear in. Key question for each: what metric is this organ optimising for,
+      and how does that diverge from the aggregate public interest?
+    </p>
+
+    <ul class="space-y-4">
+      {visible.map(organ => (
+        <li>
+          <a href={`/organs/${organ.id}/`} class="group block">
+            <span class="font-medium group-hover:text-sc-accent dark:group-hover:text-sc-accent-dark">{organ.data.title}</span>
+            {organ.data.status === 'stub' && (
+              <span class="text-xs text-sc-muted dark:text-sc-muted-dark ml-2">STUB</span>
+            )}
+            {organ.data.status === 'draft' && (
+              <span class="text-xs text-amber-600 dark:text-amber-400 ml-2">DRAFT</span>
+            )}
+            <p class="text-sm text-sc-muted dark:text-sc-muted-dark mt-0.5">
+              <strong>Metric:</strong> {organ.data.metric}
+            </p>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </article>
+</Base>

@@ -1,0 +1,84 @@
+# Stagnacarta Relationship Layer
+# Defines connections between organs, mechanisms, and case studies.
+# This file powers the /connections visualisation.
+#
+# Relationship types:
+#   exhibits    - organ exhibits mechanism
+#   involves    - case study involves organ
+#   demonstrates - case study demonstrates mechanism
+#   related     - mechanism relates to mechanism
+#   proposes    - solution addresses mechanism or case study
+
+relationships:
+
+  # --- Case Study → Mechanism ---
+  - from: case-studies/hs2-wendover-farm-track
+    to: mechanisms/regulatory-accretion
+    type: demonstrates
+
+  - from: case-studies/hs2-wendover-farm-track
+    to: mechanisms/accountability-diffusion
+    type: demonstrates
+
+  - from: case-studies/hs2-wendover-farm-track
+    to: mechanisms/metric-capture
+    type: demonstrates
+
+  - from: case-studies/send-crisis
+    to: mechanisms/accountability-diffusion
+    type: demonstrates
+
+  - from: case-studies/send-crisis
+    to: mechanisms/metric-capture
+    type: demonstrates
+
+  # --- Case Study → Organ ---
+  - from: case-studies/hs2-wendover-farm-track
+    to: organs/environment-agency
+    type: involves
+
+  - from: case-studies/hs2-wendover-farm-track
+    to: organs/local-authorities
+    type: involves
+
+  - from: case-studies/hs2-wendover-farm-track
+    to: organs/hs2-ltd
+    type: involves
+
+  - from: case-studies/send-crisis
+    to: organs/department-for-education
+    type: involves
+
+  - from: case-studies/send-crisis
+    to: organs/local-authorities
+    type: involves
+
+  # --- Organ → Mechanism ---
+  - from: organs/environment-agency
+    to: mechanisms/regulatory-accretion
+    type: exhibits
+
+  - from: organs/local-authorities
+    to: mechanisms/accountability-diffusion
+    type: exhibits
+
+  - from: organs/local-authorities
+    to: mechanisms/metric-capture
+    type: exhibits
+
+  - from: organs/department-for-education
+    to: mechanisms/metric-capture
+    type: exhibits
+
+  - from: organs/department-for-education
+    to: mechanisms/accountability-diffusion
+    type: exhibits
+
+  # --- Mechanism → Mechanism ---
+  - from: mechanisms/metric-capture
+    to: mechanisms/accountability-diffusion
+    type: related
+
+  - from: mechanisms/regulatory-accretion
+    to: mechanisms/metric-capture
+    type: related

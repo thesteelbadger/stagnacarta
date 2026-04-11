@@ -1,0 +1,82 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const allCaseStudies = await getCollection('case-studies');
+const allMechanisms = await getCollection('mechanisms');
+const allOrgans = await getCollection('organs');
+
+const countVisible = (items: any[]) => items.filter(i => i.data.status !== 'stub').length;
+---
+
+<Base title="Stagnacarta" description="Mapping how British institutions fail. A unified theory of why nothing works.">
+  <article class="max-w-prose">
+    <h1 class="text-2xl font-bold mb-4">Stagnacarta</h1>
+
+    <p class="text-lg text-sc-muted dark:text-sc-muted-dark mb-6">
+      Mapping how British institutions fail. Not a decline narrative —
+      a specific, testable claim about post-2008 institutional failure.
+    </p>
+
+    <p class="mb-4">
+      Every failure everyone complains about separately turns out to be the same structural problem:
+      each bit of government optimises for its own metric and nobody owns the aggregate consequence.
+      Bats get protected, roads don't get built, the country gets poorer, nobody's responsible.
+    </p>
+
+    <p class="mb-4">
+      This site maps those connections, names the recurring patterns, and stress-tests proposed
+      solutions with the same rigour it applies to failures.
+    </p>
+
+    <p class="mb-8">
+      It was built by one person with domain knowledge, strong opinions, and genuine frustration,
+      using AI to do the research synthesis that would otherwise require a large team.
+      The methodology is open, the AI use is acknowledged, and everything can be challenged.
+    </p>
+
+    <div class="grid gap-6 sm:grid-cols-2 mb-12">
+      <a href="/case-studies/" class="block group border border-sc-border dark:border-sc-border-dark rounded p-4 hover:border-sc-accent dark:hover:border-sc-accent-dark">
+        <h2 class="font-semibold group-hover:text-sc-accent dark:group-hover:text-sc-accent-dark">Case Studies</h2>
+        <p class="text-sm text-sc-muted dark:text-sc-muted-dark mt-1">
+          Documented failures and successes. {countVisible(allCaseStudies)} entries.
+        </p>
+      </a>
+
+      <a href="/mechanisms/" class="block group border border-sc-border dark:border-sc-border-dark rounded p-4 hover:border-sc-accent dark:hover:border-sc-accent-dark">
+        <h2 class="font-semibold group-hover:text-sc-accent dark:group-hover:text-sc-accent-dark">Mechanisms</h2>
+        <p class="text-sm text-sc-muted dark:text-sc-muted-dark mt-1">
+          Recurring patterns across failures. {countVisible(allMechanisms)} identified.
+        </p>
+      </a>
+
+      <a href="/organs/" class="block group border border-sc-border dark:border-sc-border-dark rounded p-4 hover:border-sc-accent dark:hover:border-sc-accent-dark">
+        <h2 class="font-semibold group-hover:text-sc-accent dark:group-hover:text-sc-accent-dark">Organs</h2>
+        <p class="text-sm text-sc-muted dark:text-sc-muted-dark mt-1">
+          The institutions involved. {countVisible(allOrgans)} mapped.
+        </p>
+      </a>
+
+      <a href="/connections/" class="block group border border-sc-border dark:border-sc-border-dark rounded p-4 hover:border-sc-accent dark:hover:border-sc-accent-dark">
+        <h2 class="font-semibold group-hover:text-sc-accent dark:group-hover:text-sc-accent-dark">Connections</h2>
+        <p class="text-sm text-sc-muted dark:text-sc-muted-dark mt-1">
+          Interactive map of how organs, mechanisms, and failures relate.
+        </p>
+      </a>
+
+      <a href="/solutions/" class="block group border border-sc-border dark:border-sc-border-dark rounded p-4 hover:border-sc-accent dark:hover:border-sc-accent-dark">
+        <h2 class="font-semibold group-hover:text-sc-accent dark:group-hover:text-sc-accent-dark">Solutions</h2>
+        <p class="text-sm text-sc-muted dark:text-sc-muted-dark mt-1">
+          Stress-testing other people's proposed reforms. Not prescriptions.
+        </p>
+      </a>
+
+      <a href="/about/" class="block group border border-sc-border dark:border-sc-border-dark rounded p-4 hover:border-sc-accent dark:hover:border-sc-accent-dark">
+        <h2 class="font-semibold group-hover:text-sc-accent dark:group-hover:text-sc-accent-dark">About</h2>
+        <p class="text-sm text-sc-muted dark:text-sc-muted-dark mt-1">
+          Mission, methodology, AI transparency, and why this site exists.
+        </p>
+      </a>
+    </div>
+  </article>
+</Base>
