@@ -1,21 +1,319 @@
 ---
 import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { getAllRelationships } from '../../lib/connections';
+
+const allCaseStudies = await getCollection('case-studies');
+const allMechanisms = await getCollection('mechanisms');
+const allOrgans = await getCollection('organs');
+
+// Build node data with summaries
+const nodes = [
+  ...allCaseStudies.map(c => ({ id: `case-studies/${c.id}`, label: c.data.title, type: 'case-study', href: `/case-studies/${c.id}/`, summary: c.data.summary })),
+  ...allMechanisms.map(m => ({ id: `mechanisms/${m.id}`, label: m.data.title, type: 'mechanism', href: `/mechanisms/${m.id}/`, summary: m.data.definition })),
+  ...allOrgans.map(o => ({ id: `organs/${o.id}`, label: o.data.title, type: 'organ', href: `/organs/${o.id}/`, summary: o.data.metric })),
+];
+
+const relationships = getAllRelationships();
+
+const nodeIds = new Set(nodes.map(n => n.id));
+const edges = relationships
+  .filter(r => nodeIds.has(r.from) && nodeIds.has(r.to))
+  .map(r => ({ source: r.from, target: r.to, type: r.type }));
+
+const graphData = JSON.stringify({ nodes, edges });
 ---
 
 <Base title="Connections" description="Interactive visualisation of relationships between organs, mechanisms, and case studies." breadcrumbs={[{ label: 'Connections' }]}>
-  <article class="max-w-prose">
+  <article>
     <h1 class="text-2xl font-bold mb-2">Connections</h1>
     <p class="text-sc-muted dark:text-sc-muted-dark mb-6">
-      The key differentiator. An interactive visualisation of relationships between organs,
-      mechanisms, and case studies. Powered by the YAML relationship layer. Explorable map.
+      How case studies, mechanisms, and organs relate to each other.
+      Click a node to see its summary. Drag to rearrange.
     </p>
 
-    <div id="connections-graph" class="border border-sc-border dark:border-sc-border-dark rounded p-8 text-center text-sc-muted dark:text-sc-muted-dark min-h-[400px] flex items-center justify-center">
-      <p>
-        The connections visualisation is under development.<br />
-        The relationship data is defined in <code>src/data/relationships.yaml</code><br />
-        and will be rendered here using D3.js or Cytoscape.js.
-      </p>
+    <div class="mb-4 flex flex-wrap gap-4 text-sm text-sc-muted dark:text-sc-muted-dark">
+      <span><span style="color:#b45309;">●</span> Case Studies</span>
+      <span><span style="color:#4a6670;">●</span> Mechanisms</span>
+      <span><span style="color:#7c3aed;">●</span> Organs</span>
     </div>
+
+    <div id="info-panel" style="display:none;border:1px solid var(--sc-border);border-radius:6px;padding:1rem 1.25rem;margin-bottom:1rem;background:var(--sc-ref-bg);">
+      <div style="display:flex;justify-content:space-between;align-items:start;gap:1rem;">
+        <div>
+          <h2 id="info-title" style="font-size:1.1rem;font-weight:700;margin:0 0 0.4rem 0;"></h2>
+          <p id="info-type" style="font-size:0.75rem;color:var(--sc-muted);margin:0 0 0.5rem 0;text-transform:uppercase;letter-spacing:0.05em;"></p>
+          <p id="info-summary" style="font-size:0.9rem;margin:0 0 0.75rem 0;color:var(--sc-text);"></p>
+          <a id="info-link" href="#" style="font-size:0.85rem;">Read full page →</a>
+        </div>
+        <button id="info-close" type="button" style="background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--sc-muted);padding:0;line-height:1;">✕</button>
+      </div>
+    </div>
+
+    <div id="graph-container" style="width:100%;height:600px;border:1px solid var(--sc-border);border-radius:6px;overflow:hidden;background:var(--sc-bg);"></div>
   </article>
+
+  <script is:inline define:vars={{ graphData }}>
+    (function() {
+      var data = JSON.parse(graphData);
+
+      var container = document.getElementById('graph-container');
+      var infoPanel = document.getElementById('info-panel');
+      var infoTitle = document.getElementById('info-title');
+      var infoType = document.getElementById('info-type');
+      var infoSummary = document.getElementById('info-summary');
+      var infoLink = document.getElementById('info-link');
+      var infoClose = document.getElementById('info-close');
+
+      var width = container.clientWidth;
+      var height = container.clientHeight;
+
+      var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('width', width);
+      svg.setAttribute('height', height);
+      svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+      container.appendChild(svg);
+
+      var colors = {
+        'case-study': '#b45309',
+        'mechanism': '#4a6670',
+        'organ': '#7c3aed'
+      };
+
+      var typeLabels = {
+        'case-study': 'Case Study',
+        'mechanism': 'Mechanism',
+        'organ': 'Organ'
+      };
+
+      var radii = {
+        'case-study': 8,
+        'mechanism': 10,
+        'organ': 7
+      };
+
+      var nodes = data.nodes.map(function(n) {
+        return {
+          id: n.id,
+          label: n.label,
+          type: n.type,
+          href: n.href,
+          summary: n.summary,
+          x: width/2 + (Math.random() - 0.5) * 300,
+          y: height/2 + (Math.random() - 0.5) * 300,
+          vx: 0,
+          vy: 0
+        };
+      });
+
+      var nodeMap = {};
+      nodes.forEach(function(n) { nodeMap[n.id] = n; });
+
+      var edges = data.edges.filter(function(e) {
+        return nodeMap[e.source] && nodeMap[e.target];
+      });
+
+      // Draw edges
+      var edgeElements = [];
+      edges.forEach(function(e) {
+        var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('stroke', 'var(--sc-border)');
+        line.setAttribute('stroke-width', '1.5');
+        line.setAttribute('opacity', '0.6');
+        svg.appendChild(line);
+        edgeElements.push({ el: line, source: e.source, target: e.target });
+      });
+
+      // Track selected node
+      var selectedNodeId = null;
+
+      function showInfo(n) {
+        selectedNodeId = n.id;
+        infoTitle.textContent = n.label;
+        infoType.textContent = typeLabels[n.type];
+        infoType.style.color = colors[n.type];
+        infoSummary.textContent = n.summary;
+        infoLink.href = n.href;
+        infoPanel.style.display = 'block';
+      }
+
+      function hideInfo() {
+        selectedNodeId = null;
+        infoPanel.style.display = 'none';
+      }
+
+      infoClose.addEventListener('click', hideInfo);
+
+      // Draw nodes
+      var nodeGroups = [];
+      nodes.forEach(function(n) {
+        var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.style.cursor = 'pointer';
+
+        var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('r', radii[n.type]);
+        circle.setAttribute('fill', colors[n.type]);
+        circle.setAttribute('stroke', '#fff');
+        circle.setAttribute('stroke-width', '2');
+        g.appendChild(circle);
+
+        var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('dy', radii[n.type] + 14);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('fill', 'var(--sc-muted)');
+        text.setAttribute('font-size', '11');
+        text.setAttribute('font-family', 'Inter, -apple-system, sans-serif');
+        var shortLabel = n.label.length > 25 ? n.label.substring(0, 23) + '…' : n.label;
+        text.textContent = shortLabel;
+        g.appendChild(text);
+
+        // Hover
+        g.addEventListener('mouseenter', function() {
+          circle.setAttribute('r', radii[n.type] + 3);
+          text.setAttribute('fill', 'var(--sc-text)');
+          text.setAttribute('font-weight', '600');
+          text.textContent = n.label;
+          edgeElements.forEach(function(edge) {
+            if (edge.source === n.id || edge.target === n.id) {
+              edge.el.setAttribute('stroke', colors[n.type]);
+              edge.el.setAttribute('opacity', '1');
+              edge.el.setAttribute('stroke-width', '2.5');
+            }
+          });
+        });
+
+        g.addEventListener('mouseleave', function() {
+          circle.setAttribute('r', radii[n.type]);
+          text.setAttribute('fill', 'var(--sc-muted)');
+          text.setAttribute('font-weight', 'normal');
+          text.textContent = shortLabel;
+          edgeElements.forEach(function(edge) {
+            edge.el.setAttribute('stroke', 'var(--sc-border)');
+            edge.el.setAttribute('opacity', '0.6');
+            edge.el.setAttribute('stroke-width', '1.5');
+          });
+        });
+
+        svg.appendChild(g);
+        nodeGroups.push({ el: g, node: n });
+
+        // Drag and click handling
+        var dragging = false;
+        var didDrag = false;
+        var startX = 0;
+        var startY = 0;
+
+        g.addEventListener('mousedown', function(evt) {
+          dragging = true;
+          didDrag = false;
+          startX = evt.clientX;
+          startY = evt.clientY;
+          n.fixed = true;
+          evt.preventDefault();
+        });
+
+        document.addEventListener('mousemove', function(evt) {
+          if (!dragging) return;
+          var dx = evt.clientX - startX;
+          var dy = evt.clientY - startY;
+          if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+            didDrag = true;
+          }
+          var rect = svg.getBoundingClientRect();
+          n.x = evt.clientX - rect.left;
+          n.y = evt.clientY - rect.top;
+          evt.preventDefault();
+        });
+
+        document.addEventListener('mouseup', function(evt) {
+          if (!dragging) return;
+          dragging = false;
+          if (!didDrag) {
+            // It was a click, not a drag
+            showInfo(n);
+          }
+          setTimeout(function() { n.fixed = false; }, 3000);
+        });
+      });
+
+      // Force simulation
+      function simulate() {
+        var repulsion = 1500;
+        var springLength = 120;
+        var springStrength = 0.04;
+        var centerStrength = 0.01;
+        var damping = 0.85;
+
+        for (var i = 0; i < nodes.length; i++) {
+          for (var j = i + 1; j < nodes.length; j++) {
+            var dx = nodes[j].x - nodes[i].x;
+            var dy = nodes[j].y - nodes[i].y;
+            var dist = Math.sqrt(dx*dx + dy*dy) || 1;
+            var force = repulsion / (dist * dist);
+            var fx = (dx / dist) * force;
+            var fy = (dy / dist) * force;
+            if (!nodes[i].fixed) { nodes[i].vx -= fx; nodes[i].vy -= fy; }
+            if (!nodes[j].fixed) { nodes[j].vx += fx; nodes[j].vy += fy; }
+          }
+        }
+
+        edges.forEach(function(e) {
+          var s = nodeMap[e.source];
+          var t = nodeMap[e.target];
+          if (!s || !t) return;
+          var dx = t.x - s.x;
+          var dy = t.y - s.y;
+          var dist = Math.sqrt(dx*dx + dy*dy) || 1;
+          var force = (dist - springLength) * springStrength;
+          var fx = (dx / dist) * force;
+          var fy = (dy / dist) * force;
+          if (!s.fixed) { s.vx += fx; s.vy += fy; }
+          if (!t.fixed) { t.vx -= fx; t.vy -= fy; }
+        });
+
+        nodes.forEach(function(n) {
+          if (n.fixed) return;
+          n.vx += (width/2 - n.x) * centerStrength;
+          n.vy += (height/2 - n.y) * centerStrength;
+        });
+
+        nodes.forEach(function(n) {
+          if (n.fixed) return;
+          n.vx *= damping;
+          n.vy *= damping;
+          n.x += n.vx;
+          n.y += n.vy;
+          var margin = 40;
+          n.x = Math.max(margin, Math.min(width - margin, n.x));
+          n.y = Math.max(margin, Math.min(height - margin, n.y));
+        });
+
+        edgeElements.forEach(function(e) {
+          var s = nodeMap[e.source];
+          var t = nodeMap[e.target];
+          if (!s || !t) return;
+          e.el.setAttribute('x1', s.x);
+          e.el.setAttribute('y1', s.y);
+          e.el.setAttribute('x2', t.x);
+          e.el.setAttribute('y2', t.y);
+        });
+
+        nodeGroups.forEach(function(ng) {
+          ng.el.setAttribute('transform', 'translate(' + ng.node.x + ',' + ng.node.y + ')');
+        });
+
+        requestAnimationFrame(simulate);
+      }
+
+      simulate();
+
+      window.addEventListener('resize', function() {
+        width = container.clientWidth;
+        height = container.clientHeight;
+        svg.setAttribute('width', width);
+        svg.setAttribute('height', height);
+        svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+      });
+    })();
+  </script>
 </Base>
