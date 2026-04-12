@@ -22,8 +22,8 @@
   }
 
   html {
-    font-size: 17px;
-    line-height: 1.6;
+    font-size: 18px;
+    line-height: 1.65;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -42,23 +42,44 @@
     text-decoration: underline;
   }
 
-  /* Prose content styling */
+  /* Typography — three levels only */
+  .prose h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    line-height: 1.3;
+  }
+
   .prose h2 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-top: 2rem;
-    margin-bottom: 0.75rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--sc-border);
+    line-height: 1.35;
+  }
+
+  .prose h2:first-child {
+    border-top: none;
+    padding-top: 0;
   }
 
   .prose h3 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-top: 1.5rem;
-    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-top: 1.75rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.35;
   }
 
   .prose p {
-    margin-bottom: 1rem;
+    margin-bottom: 1.1rem;
+  }
+
+  .prose p + p {
+    margin-top: 0;
   }
 
   .prose blockquote {
@@ -70,15 +91,19 @@
   }
 
   .prose ul, .prose ol {
-    margin-bottom: 1rem;
+    margin-bottom: 1.1rem;
     padding-left: 1.5rem;
   }
 
   .prose li {
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.35rem;
   }
 
-  /* Reference layer sections — subtle distinction */
+  .prose strong {
+    font-weight: 600;
+  }
+
+  /* Reference layer sections */
   .ref-layer {
     background-color: var(--sc-ref-bg);
     border-left: 3px solid var(--sc-accent);
@@ -114,8 +139,8 @@
   /* Mechanism/organ tags */
   .tag {
     display: inline-block;
-    font-size: 0.75rem;
-    padding: 0.125rem 0.5rem;
+    font-size: 0.8rem;
+    padding: 0.2rem 0.6rem;
     border-radius: 9999px;
     border: 1px solid var(--sc-border);
     color: var(--sc-muted);

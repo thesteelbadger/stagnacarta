@@ -3,7 +3,7 @@ import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 
 const allSolutions = await getCollection('solutions');
-const visible = allSolutions.filter(s => s.data.status !== 'stub').sort((a, b) => a.data.order - b.data.order);
+const visible = allSolutions.sort((a, b) => a.data.order - b.data.order);
 ---
 
 <Base title="Solutions" description="Stress-testing proposed reforms with tradeoff analysis." breadcrumbs={[{ label: 'Solutions' }]}>
@@ -15,25 +15,21 @@ const visible = allSolutions.filter(s => s.data.status !== 'stub').sort((a, b) =
       second-order effects? Why hasn't it happened despite being obviously sensible?
     </p>
 
-    {visible.length > 0 ? (
-      <ul class="space-y-4">
-        {visible.map(sol => (
-          <li>
-            <a href={`/solutions/${sol.id}/`} class="group block">
-              <span class="font-medium group-hover:text-sc-accent dark:group-hover:text-sc-accent-dark">{sol.data.title}</span>
-              {sol.data.status === 'draft' && (
-                <span class="text-xs text-amber-600 dark:text-amber-400 ml-2">DRAFT</span>
-              )}
-              <p class="text-sm text-sc-muted dark:text-sc-muted-dark mt-0.5">{sol.data.summary}</p>
-            </a>
-          </li>
-        ))}
-      </ul>
-    ) : (
-      <p class="text-sc-muted dark:text-sc-muted-dark">
-        Solutions content is planned for Phase 3, once enough case studies exist to
-        stress-test reforms against.
-      </p>
-    )}
+    <ul class="space-y-4">
+      {visible.map(sol => (
+        <li>
+          <a href={`/solutions/${sol.id}/`} class="group block">
+            <span class="font-medium group-hover:text-sc-accent dark:group-hover:text-sc-accent-dark">{sol.data.title}</span>
+            {sol.data.status === 'draft' && (
+              <span class="text-xs text-amber-600 dark:text-amber-400 ml-2">DRAFT</span>
+            )}
+            {sol.data.status === 'stub' && (
+              <span class="text-xs text-sc-muted dark:text-sc-muted-dark ml-2">STUB</span>
+            )}
+            <p class="text-sm text-sc-muted dark:text-sc-muted-dark mt-0.5">{sol.data.summary}</p>
+          </a>
+        </li>
+      ))}
+    </ul>
   </article>
 </Base>

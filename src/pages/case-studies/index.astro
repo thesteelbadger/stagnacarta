@@ -3,7 +3,7 @@ import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 
 const allCaseStudies = await getCollection('case-studies');
-const visible = allCaseStudies.filter(s => s.data.status !== 'stub').sort((a, b) => a.data.order - b.data.order);
+const visible = allCaseStudies.sort((a, b) => a.data.order - b.data.order);
 const failures = visible.filter(s => s.data.type === 'failure');
 const successes = visible.filter(s => s.data.type === 'success');
 ---
@@ -28,6 +28,9 @@ const successes = visible.filter(s => s.data.type === 'success');
                 {study.data.status === 'draft' && (
                   <span class="text-xs text-amber-600 dark:text-amber-400 ml-2">DRAFT</span>
                 )}
+                {study.data.status === 'stub' && (
+                  <span class="text-xs text-sc-muted dark:text-sc-muted-dark ml-2">STUB</span>
+                )}
                 <p class="text-sm text-sc-muted dark:text-sc-muted-dark mt-0.5">{study.data.summary}</p>
               </a>
             </li>
@@ -46,6 +49,9 @@ const successes = visible.filter(s => s.data.type === 'success');
                 <span class="font-medium group-hover:text-sc-accent dark:group-hover:text-sc-accent-dark">{study.data.title}</span>
                 {study.data.status === 'draft' && (
                   <span class="text-xs text-amber-600 dark:text-amber-400 ml-2">DRAFT</span>
+                )}
+                {study.data.status === 'stub' && (
+                  <span class="text-xs text-sc-muted dark:text-sc-muted-dark ml-2">STUB</span>
                 )}
                 <p class="text-sm text-sc-muted dark:text-sc-muted-dark mt-0.5">{study.data.summary}</p>
               </a>

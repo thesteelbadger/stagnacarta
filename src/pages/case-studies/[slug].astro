@@ -12,6 +12,11 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
+
+const allMechanisms = await getCollection('mechanisms');
+const allOrgans = await getCollection('organs');
+const mechTitles = Object.fromEntries(allMechanisms.map(m => [m.id, m.data.title]));
+const organTitles = Object.fromEntries(allOrgans.map(o => [o.id, o.data.title]));
 ---
 
 <Base
@@ -24,10 +29,10 @@ const { Content } = await render(entry);
   ]}
 >
   <article class="max-w-prose" data-pagefind-body>
-    <header class="mb-6">
-      <div class="flex items-center gap-2 mb-2">
+    <header class="mb-8">
+      <div class="flex items-center gap-2 mb-3">
         <span class:list={[
-          'px-1.5 py-0.5 rounded text-xs font-medium',
+          'px-2 py-0.5 rounded text-xs font-medium',
           entry.data.type === 'failure'
             ? 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300'
             : 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300',
@@ -36,9 +41,31 @@ const { Content } = await render(entry);
         </span>
       </div>
 
-      <h1 class="text-2xl font-bold">{entry.data.title}</h1>
+      <h1 class="text-2xl font-bold mb-1">{entry.data.title}</h1>
       {entry.data.subtitle && (
-        <p class="text-lg text-sc-muted dark:text-sc-muted-dark mt-1">{entry.data.subtitle}</p>
+        <p class="text-sc-muted dark:text-sc-muted-dark mb-4">{entry.data.subtitle}</p>
+      )}
+
+      {entry.data.mechanisms.length > 0 && (
+        <div class="mb-2">
+          <span class="text-sc-muted dark:text-sc-muted-dark text-sm">Mechanisms: </span>
+          <span class="inline-flex flex-wrap gap-1.5">
+            {entry.data.mechanisms.map(m => (
+              <a href={`/mechanisms/${m}/`} class="tag">{mechTitles[m] || m}</a>
+            ))}
+          </span>
+        </div>
+      )}
+
+      {entry.data.organs.length > 0 && (
+        <div class="mb-2">
+          <span class="text-sc-muted dark:text-sc-muted-dark text-sm">Organs: </span>
+          <span class="inline-flex flex-wrap gap-1.5">
+            {entry.data.organs.map(o => (
+              <a href={`/organs/${o}/`} class="tag">{organTitles[o] || o}</a>
+            ))}
+          </span>
+        </div>
       )}
     </header>
 
@@ -46,43 +73,13 @@ const { Content } = await render(entry);
       <Content />
     </div>
 
-    <footer class="mt-10 pt-6 border-t border-sc-border dark:border-sc-border-dark text-sm">
-      {entry.data.mechanisms.length > 0 && (
-        <div class="mb-3">
-          <span class="text-sc-muted dark:text-sc-muted-dark">Mechanisms: </span>
-          <span class="flex flex-wrap gap-1.5 mt-1">
-            {entry.data.mechanisms.map(m => (
-              <a href={`/mechanisms/${m}/`} class="tag">{m.replace(/-/g, ' ')}</a>
-            ))}
-          </span>
-        </div>
-      )}
-
-      {entry.data.organs.length > 0 && (
-        <div class="mb-3">
-          <span class="text-sc-muted dark:text-sc-muted-dark">Organs: </span>
-          <span class="flex flex-wrap gap-1.5 mt-1">
-            {entry.data.organs.map(o => (
-              <a href={`/organs/${o}/`} class="tag">{o.replace(/-/g, ' ')}</a>
-            ))}
-          </span>
-        </div>
-      )}
-
-      {entry.data.sources.length > 0 && (
-        <div class="mb-3">
-          <span class="text-sc-muted dark:text-sc-muted-dark">Sources:</span>
-          <ul class="mt-1 space-y-0.5 text-sc-muted dark:text-sc-muted-dark">
-            {entry.data.sources.map(s => <li>{s}</li>)}
-          </ul>
-        </div>
-      )}
-
-      {entry.data.lastUpdated && (
-        <p class="mt-4 text-sc-muted dark:text-sc-muted-dark">
-          Last updated: {entry.data.lastUpdated.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
-        </p>
-      )}
-    </footer>
+    {entry.data.sources.length > 0 && (
+      <footer class="mt-10 pt-6 border-t border-sc-border dark:border-sc-border-dark text-sm">
+        <span class="text-sc-muted dark:text-sc-muted-dark">Sources:</span>
+        <ul class="mt-1 space-y-0.5 text-sc-muted dark:text-sc-muted-dark">
+          {entry.data.sources.map(s => <li>{s}</li>)}
+        </ul>
+      </footer>
+    )}
   </article>
 </Base>

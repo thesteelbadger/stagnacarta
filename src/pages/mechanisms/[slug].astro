@@ -12,6 +12,14 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
+
+const allCaseStudies = await getCollection('case-studies');
+const allOrgans = await getCollection('organs');
+const csTitles = Object.fromEntries(allCaseStudies.map(c => [c.id, c.data.title]));
+const organTitles = Object.fromEntries(allOrgans.map(o => [o.id, o.data.title]));
+
+// Find organs that exhibit this mechanism
+const relatedOrgans = allOrgans.filter(o => o.data.mechanisms.includes(entry.id));
 ---
 
 <Base
@@ -24,40 +32,38 @@ const { Content } = await render(entry);
   ]}
 >
   <article class="max-w-prose" data-pagefind-body>
-    <header class="mb-6">
+    <header class="mb-8">
       {entry.data.status === 'candidate' && (
         <span class="text-xs text-amber-600 dark:text-amber-400 mb-2 inline-block">CANDIDATE MECHANISM</span>
       )}
-      <h1 class="text-2xl font-bold">{entry.data.title}</h1>
-      <p class="text-sc-muted dark:text-sc-muted-dark mt-2">{entry.data.definition}</p>
+      <h1 class="text-2xl font-bold mb-2">{entry.data.title}</h1>
+      <p class="text-sc-muted dark:text-sc-muted-dark mb-4">{entry.data.definition}</p>
+
+      {entry.data.caseStudies.length > 0 && (
+        <div class="mb-2">
+          <span class="text-sc-muted dark:text-sc-muted-dark text-sm">Case Studies: </span>
+          <span class="inline-flex flex-wrap gap-1.5">
+            {entry.data.caseStudies.map(cs => (
+              <a href={`/case-studies/${cs}/`} class="tag">{csTitles[cs] || cs}</a>
+            ))}
+          </span>
+        </div>
+      )}
+
+      {relatedOrgans.length > 0 && (
+        <div class="mb-2">
+          <span class="text-sc-muted dark:text-sc-muted-dark text-sm">Organs: </span>
+          <span class="inline-flex flex-wrap gap-1.5">
+            {relatedOrgans.map(o => (
+              <a href={`/organs/${o.id}/`} class="tag">{o.data.title}</a>
+            ))}
+          </span>
+        </div>
+      )}
     </header>
 
     <div class="prose max-w-none">
       <Content />
     </div>
-
-    <footer class="mt-10 pt-6 border-t border-sc-border dark:border-sc-border-dark text-sm">
-      {entry.data.caseStudies.length > 0 && (
-        <div class="mb-3">
-          <span class="text-sc-muted dark:text-sc-muted-dark">Appears in: </span>
-          <span class="flex flex-wrap gap-1.5 mt-1">
-            {entry.data.caseStudies.map(cs => (
-              <a href={`/case-studies/${cs}/`} class="tag">{cs.replace(/-/g, ' ')}</a>
-            ))}
-          </span>
-        </div>
-      )}
-
-      {entry.data.relatedMechanisms.length > 0 && (
-        <div class="mb-3">
-          <span class="text-sc-muted dark:text-sc-muted-dark">Related mechanisms: </span>
-          <span class="flex flex-wrap gap-1.5 mt-1">
-            {entry.data.relatedMechanisms.map(m => (
-              <a href={`/mechanisms/${m}/`} class="tag">{m.replace(/-/g, ' ')}</a>
-            ))}
-          </span>
-        </div>
-      )}
-    </footer>
   </article>
 </Base>

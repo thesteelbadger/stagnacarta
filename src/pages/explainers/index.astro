@@ -3,7 +3,7 @@ import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 
 const allExplainers = await getCollection('explainers');
-const visible = allExplainers.filter(e => e.data.status !== 'stub').sort((a, b) => a.data.order - b.data.order);
+const visible = allExplainers.sort((a, b) => a.data.order - b.data.order);
 ---
 
 <Base title="Explainers" description="Accessible background pieces that case studies and mechanism pages link to." breadcrumbs={[{ label: 'Explainers' }]}>
@@ -14,24 +14,21 @@ const visible = allExplainers.filter(e => e.data.status !== 'stub').sort((a, b) 
       Reference material that case studies and mechanism pages can link to.
     </p>
 
-    {visible.length > 0 ? (
-      <ul class="space-y-4">
-        {visible.map(exp => (
-          <li>
-            <a href={`/explainers/${exp.id}/`} class="group block">
-              <span class="font-medium group-hover:text-sc-accent dark:group-hover:text-sc-accent-dark">{exp.data.title}</span>
-              {exp.data.status === 'draft' && (
-                <span class="text-xs text-amber-600 dark:text-amber-400 ml-2">DRAFT</span>
-              )}
-              <p class="text-sm text-sc-muted dark:text-sc-muted-dark mt-0.5">{exp.data.summary}</p>
-            </a>
-          </li>
-        ))}
-      </ul>
-    ) : (
-      <p class="text-sc-muted dark:text-sc-muted-dark">
-        Explainers are planned for Phase 2.
-      </p>
-    )}
+    <ul class="space-y-4">
+      {visible.map(exp => (
+        <li>
+          <a href={`/explainers/${exp.id}/`} class="group block">
+            <span class="font-medium group-hover:text-sc-accent dark:group-hover:text-sc-accent-dark">{exp.data.title}</span>
+            {exp.data.status === 'draft' && (
+              <span class="text-xs text-amber-600 dark:text-amber-400 ml-2">DRAFT</span>
+            )}
+            {exp.data.status === 'stub' && (
+              <span class="text-xs text-sc-muted dark:text-sc-muted-dark ml-2">STUB</span>
+            )}
+            <p class="text-sm text-sc-muted dark:text-sc-muted-dark mt-0.5">{exp.data.summary}</p>
+          </a>
+        </li>
+      ))}
+    </ul>
   </article>
 </Base>
