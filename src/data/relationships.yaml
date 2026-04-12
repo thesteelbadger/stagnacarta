@@ -1,17 +1,22 @@
 # Stagnacarta Relationship Layer
-# Defines connections between organs, mechanisms, and case studies.
-# This file powers the /connections visualisation.
+# Single source of truth for all connections between content.
+# All page templates derive their cross-reference tags from this file.
+#
+# Format:
+#   - from: collection/slug
+#     to: collection/slug
+#     type: relationship-type
 #
 # Relationship types:
-#   exhibits    - organ exhibits mechanism
-#   involves    - case study involves organ
 #   demonstrates - case study demonstrates mechanism
-#   related     - mechanism relates to mechanism
-#   proposes    - solution addresses mechanism or case study
+#   involves     - case study involves organ
+#   exhibits     - organ exhibits mechanism
 
 relationships:
 
-  # --- Case Study → Mechanism ---
+  # ──────────────────────────────────────
+  # HS2 Wendover Farm Track
+  # ──────────────────────────────────────
   - from: case-studies/hs2-wendover-farm-track
     to: mechanisms/regulatory-accretion
     type: demonstrates
@@ -24,15 +29,6 @@ relationships:
     to: mechanisms/metric-capture
     type: demonstrates
 
-  - from: case-studies/send-crisis
-    to: mechanisms/accountability-diffusion
-    type: demonstrates
-
-  - from: case-studies/send-crisis
-    to: mechanisms/metric-capture
-    type: demonstrates
-
-  # --- Case Study → Organ ---
   - from: case-studies/hs2-wendover-farm-track
     to: organs/environment-agency
     type: involves
@@ -45,6 +41,21 @@ relationships:
     to: organs/hs2-ltd
     type: involves
 
+  # ──────────────────────────────────────
+  # SEND Crisis
+  # ──────────────────────────────────────
+  - from: case-studies/send-crisis
+    to: mechanisms/accountability-diffusion
+    type: demonstrates
+
+  - from: case-studies/send-crisis
+    to: mechanisms/metric-capture
+    type: demonstrates
+
+  - from: case-studies/send-crisis
+    to: mechanisms/regulatory-accretion
+    type: demonstrates
+
   - from: case-studies/send-crisis
     to: organs/department-for-education
     type: involves
@@ -53,11 +64,32 @@ relationships:
     to: organs/local-authorities
     type: involves
 
-  # --- Organ → Mechanism ---
+  # ──────────────────────────────────────
+  # Post Office Horizon
+  # ──────────────────────────────────────
+  - from: case-studies/post-office-horizon
+    to: mechanisms/metric-capture
+    type: demonstrates
+
+  - from: case-studies/post-office-horizon
+    to: mechanisms/accountability-diffusion
+    type: demonstrates
+
+  - from: case-studies/post-office-horizon
+    to: organs/post-office-ltd
+    type: involves
+
+  # ──────────────────────────────────────
+  # Organ → Mechanism
+  # ──────────────────────────────────────
   - from: organs/environment-agency
     to: mechanisms/regulatory-accretion
     type: exhibits
 
+  - from: organs/environment-agency
+    to: mechanisms/accountability-diffusion
+    type: exhibits
+
   - from: organs/local-authorities
     to: mechanisms/accountability-diffusion
     type: exhibits
@@ -74,11 +106,22 @@ relationships:
     to: mechanisms/accountability-diffusion
     type: exhibits
 
-  # --- Mechanism → Mechanism ---
-  - from: mechanisms/metric-capture
-    to: mechanisms/accountability-diffusion
-    type: related
+  - from: organs/hs2-ltd
+    to: mechanisms/regulatory-accretion
+    type: exhibits
 
-  - from: mechanisms/regulatory-accretion
+  - from: organs/hm-treasury
     to: mechanisms/metric-capture
-    type: related
+    type: exhibits
+
+  - from: organs/hm-treasury
+    to: mechanisms/accountability-diffusion
+    type: exhibits
+
+  - from: organs/post-office-ltd
+    to: mechanisms/metric-capture
+    type: exhibits
+
+  - from: organs/post-office-ltd
+    to: mechanisms/accountability-diffusion
+    type: exhibits

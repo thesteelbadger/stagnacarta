@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { getCollection, render } from 'astro:content';
+import { getConnectedIds } from '../../lib/connections';
 
 export async function getStaticPaths() {
   const entries = await getCollection('organs');
@@ -13,10 +14,14 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 
+const nodeId = `organs/${entry.id}`;
+const caseStudyIds = getConnectedIds(nodeId, 'case-studies');
+const mechanismIds = getConnectedIds(nodeId, 'mechanisms');
+
 const allCaseStudies = await getCollection('case-studies');
 const allMechanisms = await getCollection('mechanisms');
-const csTitles = Object.fromEntries(allCaseStudies.map(c => [c.id, c.data.title]));
-const mechTitles = Object.fromEntries(allMechanisms.map(m => [m.id, m.data.title]));
+const csMap = Object.fromEntries(allCaseStudies.map(c => [c.id, c.data.title]));
+const mechMap = Object.fromEntries(allMechanisms.map(m => [m.id, m.data.title]));
 ---
 
 <Base
@@ -32,23 +37,23 @@ const mechTitles = Object.fromEntries(allMechanisms.map(m => [m.id, m.data.title
     <header class="mb-8">
       <h1 class="text-2xl font-bold mb-4">{entry.data.title}</h1>
 
-      {entry.data.caseStudies.length > 0 && (
+      {caseStudyIds.length > 0 && (
         <div class="mb-2">
           <span class="text-sc-muted dark:text-sc-muted-dark text-sm">Case Studies: </span>
           <span class="inline-flex flex-wrap gap-1.5">
-            {entry.data.caseStudies.map(cs => (
-              <a href={`/case-studies/${cs}/`} class="tag">{csTitles[cs] || cs}</a>
+            {caseStudyIds.map(cs => (
+              <a href={`/case-studies/${cs}/`} class="tag">{csMap[cs] || cs}</a>
             ))}
           </span>
         </div>
       )}
 
-      {entry.data.mechanisms.length > 0 && (
+      {mechanismIds.length > 0 && (
         <div class="mb-2">
           <span class="text-sc-muted dark:text-sc-muted-dark text-sm">Mechanisms: </span>
           <span class="inline-flex flex-wrap gap-1.5">
-            {entry.data.mechanisms.map(m => (
-              <a href={`/mechanisms/${m}/`} class="tag">{mechTitles[m] || m}</a>
+            {mechanismIds.map(m => (
+              <a href={`/mechanisms/${m}/`} class="tag">{mechMap[m] || m}</a>
             ))}
           </span>
         </div>

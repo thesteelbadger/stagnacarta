@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { getCollection, render } from 'astro:content';
+import { getConnectedIds } from '../../lib/connections';
 
 export async function getStaticPaths() {
   const entries = await getCollection('mechanisms');
@@ -13,13 +14,14 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 
+const nodeId = `mechanisms/${entry.id}`;
+const caseStudyIds = getConnectedIds(nodeId, 'case-studies');
+const organIds = getConnectedIds(nodeId, 'organs');
+
 const allCaseStudies = await getCollection('case-studies');
 const allOrgans = await getCollection('organs');
-const csTitles = Object.fromEntries(allCaseStudies.map(c => [c.id, c.data.title]));
-const organTitles = Object.fromEntries(allOrgans.map(o => [o.id, o.data.title]));
-
-// Find organs that exhibit this mechanism
-const relatedOrgans = allOrgans.filter(o => o.data.mechanisms.includes(entry.id));
+const csMap = Object.fromEntries(allCaseStudies.map(c => [c.id, c.data.title]));
+const organMap = Object.fromEntries(allOrgans.map(o => [o.id, o.data.title]));
 ---
 
 <Base
@@ -39,23 +41,23 @@ const relatedOrgans = allOrgans.filter(o => o.data.mechanisms.includes(entry.id)
       <h1 class="text-2xl font-bold mb-2">{entry.data.title}</h1>
       <p class="text-sc-muted dark:text-sc-muted-dark mb-4">{entry.data.definition}</p>
 
-      {entry.data.caseStudies.length > 0 && (
+      {caseStudyIds.length > 0 && (
         <div class="mb-2">
           <span class="text-sc-muted dark:text-sc-muted-dark text-sm">Case Studies: </span>
           <span class="inline-flex flex-wrap gap-1.5">
-            {entry.data.caseStudies.map(cs => (
-              <a href={`/case-studies/${cs}/`} class="tag">{csTitles[cs] || cs}</a>
+            {caseStudyIds.map(cs => (
+              <a href={`/case-studies/${cs}/`} class="tag">{csMap[cs] || cs}</a>
             ))}
           </span>
         </div>
       )}
 
-      {relatedOrgans.length > 0 && (
+      {organIds.length > 0 && (
         <div class="mb-2">
           <span class="text-sc-muted dark:text-sc-muted-dark text-sm">Organs: </span>
           <span class="inline-flex flex-wrap gap-1.5">
-            {relatedOrgans.map(o => (
-              <a href={`/organs/${o.id}/`} class="tag">{o.data.title}</a>
+            {organIds.map(o => (
+              <a href={`/organs/${o}/`} class="tag">{organMap[o] || o}</a>
             ))}
           </span>
         </div>
