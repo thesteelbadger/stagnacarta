@@ -6,7 +6,6 @@ const caseStudies = defineCollection({
   schema: z.object({
     title: z.string(),
     subtitle: z.string().optional(),
-    type: z.enum(['failure', 'success']),
     status: z.enum(['published', 'draft', 'stub']).default('draft'),
     summary: z.string(),
     sources: z.array(z.string()).default([]),
