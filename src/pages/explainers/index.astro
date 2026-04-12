@@ -3,7 +3,7 @@ import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 
 const allExplainers = await getCollection('explainers');
-const visible = allExplainers.sort((a, b) => a.data.order - b.data.order);
+const sorted = allExplainers.sort((a, b) => a.data.title.localeCompare(b.data.title));
 ---
 
 <Base title="Explainers" description="Accessible background pieces that case studies and mechanism pages link to." breadcrumbs={[{ label: 'Explainers' }]}>
@@ -15,7 +15,7 @@ const visible = allExplainers.sort((a, b) => a.data.order - b.data.order);
     </p>
 
     <ul class="space-y-4">
-      {visible.map(exp => (
+      {sorted.map(exp => (
         <li>
           <a href={`/explainers/${exp.id}/`} class="group block">
             <span class="font-medium group-hover:text-sc-accent dark:group-hover:text-sc-accent-dark">{exp.data.title}</span>

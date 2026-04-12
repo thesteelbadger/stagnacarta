@@ -3,8 +3,9 @@ import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 
 const allMechanisms = await getCollection('mechanisms');
-const visible = allMechanisms.filter(m => m.data.status !== 'candidate').sort((a, b) => a.data.order - b.data.order);
-const candidates = allMechanisms.filter(m => m.data.status === 'candidate');
+const sorted = allMechanisms.sort((a, b) => a.data.title.localeCompare(b.data.title));
+const visible = sorted.filter(m => m.data.status !== 'candidate');
+const candidates = sorted.filter(m => m.data.status === 'candidate');
 ---
 
 <Base title="Mechanisms" description="Recurring patterns that appear across multiple British institutional failures." breadcrumbs={[{ label: 'Mechanisms' }]}>

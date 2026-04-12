@@ -3,7 +3,7 @@ import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 
 const allChallenges = await getCollection('future-challenges');
-const visible = allChallenges.sort((a, b) => a.data.order - b.data.order);
+const sorted = allChallenges.sort((a, b) => a.data.title.localeCompare(b.data.title));
 ---
 
 <Base title="Future Challenges" description="Problems coming down the track that don't yet have case studies but will need answers." breadcrumbs={[{ label: 'Future Challenges' }]}>
@@ -16,7 +16,7 @@ const visible = allChallenges.sort((a, b) => a.data.order - b.data.order);
     </p>
 
     <ul class="space-y-4">
-      {visible.map(ch => (
+      {sorted.map(ch => (
         <li>
           <a href={`/future-challenges/${ch.id}/`} class="group block">
             <span class="font-medium group-hover:text-sc-accent dark:group-hover:text-sc-accent-dark">{ch.data.title}</span>

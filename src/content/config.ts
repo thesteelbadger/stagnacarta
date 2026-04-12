@@ -10,11 +10,8 @@ const caseStudies = defineCollection({
     status: z.enum(['published', 'draft', 'stub']).default('draft'),
     summary: z.string(),
     sources: z.array(z.string()).default([]),
-    comparators: z.array(z.string()).default([]),
-    phase: z.number().default(1),
     dateAdded: z.coerce.date(),
     lastUpdated: z.coerce.date().optional(),
-    order: z.number().default(0),
   }),
 });
 
@@ -25,10 +22,8 @@ const mechanisms = defineCollection({
     shortTitle: z.string().optional(),
     status: z.enum(['published', 'draft', 'candidate']).default('draft'),
     definition: z.string(),
-    phase: z.number().default(1),
     dateAdded: z.coerce.date(),
     lastUpdated: z.coerce.date().optional(),
-    order: z.number().default(0),
   }),
 });
 
@@ -40,10 +35,8 @@ const organs = defineCollection({
     status: z.enum(['published', 'draft', 'stub']).default('stub'),
     metric: z.string(),
     divergence: z.string(),
-    phase: z.number().default(1),
     dateAdded: z.coerce.date(),
     lastUpdated: z.coerce.date().optional(),
-    order: z.number().default(0),
   }),
 });
 
@@ -54,10 +47,8 @@ const solutions = defineCollection({
     status: z.enum(['published', 'draft', 'stub']).default('draft'),
     summary: z.string(),
     proposedBy: z.string().optional(),
-    phase: z.number().default(3),
     dateAdded: z.coerce.date(),
     lastUpdated: z.coerce.date().optional(),
-    order: z.number().default(0),
   }),
 });
 
@@ -67,10 +58,8 @@ const futureChallenges = defineCollection({
     title: z.string(),
     status: z.enum(['published', 'draft', 'stub']).default('draft'),
     summary: z.string(),
-    phase: z.number().default(3),
     dateAdded: z.coerce.date(),
     lastUpdated: z.coerce.date().optional(),
-    order: z.number().default(0),
   }),
 });
 
@@ -80,10 +69,8 @@ const explainers = defineCollection({
     title: z.string(),
     status: z.enum(['published', 'draft', 'stub']).default('draft'),
     summary: z.string(),
-    phase: z.number().default(2),
     dateAdded: z.coerce.date(),
     lastUpdated: z.coerce.date().optional(),
-    order: z.number().default(0),
   }),
 });
 
@@ -92,7 +79,6 @@ const about = defineCollection({
   schema: z.object({
     title: z.string(),
     status: z.enum(['published', 'draft']).default('draft'),
-    order: z.number().default(0),
     dateAdded: z.coerce.date(),
     lastUpdated: z.coerce.date().optional(),
   }),

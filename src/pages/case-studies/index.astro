@@ -3,9 +3,9 @@ import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 
 const allCaseStudies = await getCollection('case-studies');
-const visible = allCaseStudies.sort((a, b) => a.data.order - b.data.order);
-const failures = visible.filter(s => s.data.type === 'failure');
-const successes = visible.filter(s => s.data.type === 'success');
+const sorted = allCaseStudies.sort((a, b) => a.data.title.localeCompare(b.data.title));
+const failures = sorted.filter(s => s.data.type === 'failure');
+const successes = sorted.filter(s => s.data.type === 'success');
 ---
 
 <Base title="Case Studies" description="Documented case studies of British institutional failure and success." breadcrumbs={[{ label: 'Case Studies' }]}>

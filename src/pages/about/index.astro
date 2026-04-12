@@ -3,7 +3,7 @@ import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 
 const aboutPages = await getCollection('about');
-const sorted = aboutPages.sort((a, b) => a.data.order - b.data.order);
+const sorted = aboutPages.sort((a, b) => a.data.title.localeCompare(b.data.title));
 ---
 
 <Base title="About" description="Mission, methodology, AI transparency, and why this site exists." breadcrumbs={[{ label: 'About' }]}>

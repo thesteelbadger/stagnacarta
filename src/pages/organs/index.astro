@@ -3,7 +3,7 @@ import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 
 const allOrgans = await getCollection('organs');
-const visible = allOrgans.sort((a, b) => a.data.title.localeCompare(b.data.title));
+const sorted = allOrgans.sort((a, b) => a.data.title.localeCompare(b.data.title));
 ---
 
 <Base title="Organs" description="The institutions involved in systemic British institutional failures." breadcrumbs={[{ label: 'Organs' }]}>
@@ -16,7 +16,7 @@ const visible = allOrgans.sort((a, b) => a.data.title.localeCompare(b.data.title
     </p>
 
     <ul class="space-y-4">
-      {visible.map(organ => (
+      {sorted.map(organ => (
         <li>
           <a href={`/organs/${organ.id}/`} class="group block">
             <span class="font-medium group-hover:text-sc-accent dark:group-hover:text-sc-accent-dark">{organ.data.title}</span>
